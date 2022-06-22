@@ -7,7 +7,6 @@
 
 <!-- Bootstrap CSS -->
 <link rel="stylesheet" href="css/style.css">
-<body>
 
 <title>MEMO</title>
 </head>
@@ -18,26 +17,22 @@
 
 <main>
 <h2>MEMO</h2>
+<pre>
 
-
-<?php 
+<?php
    $db = new PDO('mysql:dbname=mydb;host=127.0.0.1;charset=utf8', 'root', '');
-   $id = $_GET['id'];
    $memos = $db->prepare('SELECT * FROM memos WHERE id=?');
-   $memos->bindParam(1, $id, PDO::PARAM_INT);
+   $memos->bindParam(1, $_GET['id'], PDO::PARAM_INT);
    $memos->execute();
    $memo = $memos->fetch();
 ?>
-<pre>
-   <h3><?php echo $memo['memo']; ?></h3>
-   <time><strong><?php echo '登録日 : '. $memo['created_at']; ?></strong></time>
-</pre>
-<a href="edit.php?id=<?php echo $id ?>">編集する</a>
- |
-<a href="delete.php?id=<?php echo $id ?>">削除する</a>
- |
-<a href="view.php">戻る</a>
+<form action="edit_do.php" method="POST">
+   <input type="hidden" name="id" value="<?php echo $_GET['id'] ?>">
+   <textarea cols='50' rows="10" name="memo"><?php echo $memo['memo'] ?></textarea>
+   <p><input type="submit" value="登録する"></p>
+</form>
 
+</pre>
 </main>
 </body>    
 </html>
