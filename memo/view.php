@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ja">
 <head>
@@ -18,11 +19,20 @@
 <main>
 <h2>MEMO</h2>
 <pre>
-
+<?php  $db = new PDO('mysql:dbname=mydb;host=127.0.0.1;charset=utf8', 'root', '');?>
 <?php 
-   $db = new PDO('mysql:dbname=mydb;host=127.0.0.1;charset=utf8', 'root', '');
-   $memos = $db->query('SELECT * FROM memos ORDER BY id DESC');
+   if(isset($_REQUEST['page']) && is_numeric($_REQUEST['page'])){
+      $page = $_REQUEST['page'];
+   }else{
+      $page = 1;
+   }
+   $start = 10 * ($page - 1);
+   $memos = $db->prepare('SELECT * FROM memos ORDER BY id LIMIT ?,10');
+   $memos -> bindParam(1,$start,PDO::PARAM_INT);
+   $memos -> execute();
+
 ?>
+<article>
 <?php while ($memo = $memos->fetch()):?>
 <p>
   <a href="view_more.php?id=<?php echo $memo['id'] ?>">
@@ -32,9 +42,19 @@
 </p>
  <time><strong><?php echo '登録日 : '. $memo['created_at']; ?></strong></time>
 <?php endwhile ?>
-
+<?php if ($page>=2):?>
+<a href="view.php?page=<?php print($page-1);?>"><?php print($page-1);?>ページ目へ</a>
+<?php endif;?>
+ |
+<?php   $counts = $db->query('SELECT COUNT(*) as cnt FROM memos'); 
+$count = $counts->fetch();
+$max_page = ceil($count['cnt']/10);
+if($page<$max_page):
+ ?>
+<a href="view.php?page=<?php print($page+1);?>"><?php print($page+1);?>ページ目へ</a>
+ <?php endif;?>
+ </article> 
 </pre>
-
 </main>
-</body>    
+</body>
 </html>
